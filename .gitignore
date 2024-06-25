@@ -1,0 +1,8 @@
+.DS_store
+.env
+idea
+.idea
+coverage
+dist
+node_modules/
+test-report.xml

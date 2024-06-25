@@ -1,2 +1,2 @@
-# mkp-api-lambda-add-cart
-mkp-api-lambda-add-cart
+# api-lambda-list-products
+list products 
