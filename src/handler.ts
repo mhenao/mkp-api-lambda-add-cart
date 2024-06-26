@@ -31,6 +31,13 @@ export const handler = async (event: any, context: Context): Promise<APIGatewayP
   
   conn = await ensureConnection();
   
+  if (!conn) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ message: 'Error connecting to database' }),
+    };
+  }
+  
   console.log({
     eventParams: event,
   });
@@ -63,7 +70,7 @@ export const handler = async (event: any, context: Context): Promise<APIGatewayP
 };
 
 
-const event = {
+/*const event = {
   body: '{\r\n' +
   '  "user_id": 50,\r\n' +
   '  "items": [\r\n' +
@@ -90,3 +97,4 @@ const context = {
 handler(event, context).then((response) => {
   console.log(response);
 });
+*/

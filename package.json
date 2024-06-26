@@ -4,7 +4,7 @@
   "description": "list products",
   "types": "handler.d.ts",
   "scripts": {
-    "dev": "ts-node-dev src/handler.ts",
+    "dev": "ts-node-dev dist/handler.js",
     "build": "tsc",
     "prebuild": "rimraf ./dist",
     "postbuild": "npm run copy && npm i --prefix ./dist --only=prod && rimraf dist/.npmrc",

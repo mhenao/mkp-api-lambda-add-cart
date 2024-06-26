@@ -6,8 +6,7 @@
 	"password": "2c254e5621",
 	"database": "mkprds",
 	"entities": [
-		"dist/models/entity/**/*.js",
-    "src/models/entity/**/*.ts"
+		"dist/models/entity/**/*.js"
 	],
 	"synchronize": true,
 	"logging": false
