@@ -2,12 +2,7 @@ import { getConnection, Repository, QueryRunner } from 'typeorm';
 import { ShoppingCarts } from '../models/entity/shoppingCarts.entity';
 import { ShoppingCartItems } from '../models/entity/shoppingCartItems.entity';
 
-interface ShoppingCartInput {
-  user_id: number;
-  items: { product_id: number; quantity: number }[];
-}
-
-export const addShoppingCart = async (input: any, connection: any) => {
+export const addShoppingCart = async (input: string, connection: any) => {
   const queryRunner = connection.createQueryRunner();
 
   await queryRunner.connect();
@@ -41,7 +36,7 @@ export const addShoppingCart = async (input: any, connection: any) => {
     return savedCart;
   } catch (error) {
     await queryRunner.rollbackTransaction();
-    console.error(`Error adding shopping cart:, error with params ${input}`);
+    console.error(`Error adding shopping cart:, ${error} with params ${input}`);
     throw error;
   } finally {
     await queryRunner.release();

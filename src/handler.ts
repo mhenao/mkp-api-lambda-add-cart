@@ -3,7 +3,7 @@ import { Context } from './interfaces';
 import { createConnection, getConnection, Connection  } from 'typeorm';
 import DbServerless from './database/dbServerless';
 import config from './config';
-import { addShoppingCart } from './domain/addShopingCart';
+import { addShoppingCart } from './domain/addShoppingCart';
 import { LoggerService } from './common/logger/logger.service';
 
 let connectionPromise: Promise<Connection> | null = null;
@@ -31,12 +31,10 @@ export const handler = async (event: any, context: Context): Promise<APIGatewayP
   
   conn = await ensureConnection();
   
-  context.databaseCredentials = {
-    host: config.host.trim(),
-    database: config.database.trim(),
-    username: config.user.trim(),
-    password: config.password.trim(),
-  };
+  console.log({
+    eventParams: event,
+  });
+  
   
   logger.log(JSON.stringify(event));
   
@@ -57,11 +55,15 @@ export const handler = async (event: any, context: Context): Promise<APIGatewayP
       statusCode: 500,
       body: JSON.stringify({ message: 'Error querying database', error }),
     };
+  } finally {
+    if (conn) {
+      await conn.close();
+    }
   }
 };
 
 
-/*const event = {
+const event = {
   body: '{\r\n' +
   '  "user_id": 50,\r\n' +
   '  "items": [\r\n' +
@@ -88,4 +90,3 @@ const context = {
 handler(event, context).then((response) => {
   console.log(response);
 });
-*/
