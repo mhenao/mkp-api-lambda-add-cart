@@ -1,0 +1,13 @@
+{
+	"type": "mysql",
+	"host": "mkpdbrds.c7oeaec8cvh1.us-east-1.rds.amazonaws.com",
+	"port": 3306,
+	"username": "root",
+	"password": "2c254e5621",
+	"database": "mkprds",
+	"entities": [
+		"src/models/entity/**/*.ts"
+	],
+	"synchronize": true,
+	"logging": false
+}

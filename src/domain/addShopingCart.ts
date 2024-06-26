@@ -1,39 +1,49 @@
-import { LoggerService } from "../common/logger/logger.service";
-import { DbServerless, APIGatewayProxyEvent, ShoppingCart } from '../interfaces/'
+import { getConnection, Repository, QueryRunner } from 'typeorm';
+import { ShoppingCarts } from '../models/entity/shoppingCarts.entity';
+import { ShoppingCartItems } from '../models/entity/shoppingCartItems.entity';
 
-const logger = new LoggerService();
+interface ShoppingCartInput {
+  user_id: number;
+  items: { product_id: number; quantity: number }[];
+}
 
-export const addShoppingCart = async (dbServerless: DbServerless, body: string) => {
-  
-  console.log({
-    body:  JSON.parse(body)
-  });
-  
-  
+export const addShoppingCart = async (input: any, connection: any) => {
+  const queryRunner = connection.createQueryRunner();
+
+  await queryRunner.connect();
+  await queryRunner.startTransaction();
+
   try {
-    const { user_id, shopping_cart_items }: ShoppingCart = JSON.parse(body);
+    const { user_id, items } = JSON.parse(input);
 
-  
-    const insertCartQuery = 'INSERT INTO shopping_carts (user_id) VALUES (?)';
-    const cartResult = await dbServerless.execQuery(insertCartQuery, [user_id]);
-    console.log(cartResult)
-    const cartId = cartResult.insertId;
+    const shoppingCartRepository: Repository<ShoppingCarts> = queryRunner.manager.getRepository(ShoppingCarts);
+    const shoppingCartItemRepository: Repository<ShoppingCartItems> = queryRunner.manager.getRepository(ShoppingCartItems);
 
-    for (const item of shopping_cart_items) {
-      const insertItemQuery = 'INSERT INTO shopping_cart_items (cart_id, product_id, quantity) VALUES (?, ?, ?)';
-      await dbServerless.execQuery(insertItemQuery, [cartId, item.product_id, item.quantity]);
-    }
+    const cart = new ShoppingCarts();
+    cart.user_id = user_id;
+    cart.created_at = new Date().toISOString();
+    cart.updated_at = new Date().toISOString();
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ message: 'Shopping cart and items added successfully', cartId }),
-    };
+    const savedCart = await shoppingCartRepository.save(cart);
+
+    const itemsParams = items.map((item: { product_id: number; quantity: number }) => {
+      const cartItem = new ShoppingCartItems();
+      cartItem.cart_id = savedCart.id;
+      cartItem.product_id = item.product_id;
+      cartItem.quantity = item.quantity;
+      return cartItem;
+    });
+
+    await shoppingCartItemRepository.save(itemsParams);
+
+    await queryRunner.commitTransaction();
+
+    return savedCart;
   } catch (error) {
-    logger.error(`Error adding shopping cart: ${error}`);
-
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ message: 'Error adding shopping cart', error }),
-    };
+    await queryRunner.rollbackTransaction();
+    console.error(`Error adding shopping cart:, error with params ${input}`);
+    throw error;
+  } finally {
+    await queryRunner.release();
   }
 };
